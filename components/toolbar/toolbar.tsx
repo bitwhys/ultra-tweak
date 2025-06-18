@@ -1,6 +1,14 @@
 import { useState } from "react"
-import { Camera, Code, CursorText, Devices, GearSix, Scan, X } from "@phosphor-icons/react"
-import { CursorClick } from "@phosphor-icons/react/ssr"
+import {
+  CameraIcon,
+  CursorClickIcon,
+  CursorTextIcon,
+  Devices,
+  DevicesIcon,
+  GearSixIcon,
+  ScanIcon,
+  XIcon,
+} from "@phosphor-icons/react"
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar"
 
 import { cn } from "@/lib/utils.ts"
@@ -12,13 +20,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx"
-import { Switch } from "@/components/ui/switch"
 
+import { SettingsPanel } from "./settings-panel"
 import { BREAKPOINTS, GUIDE_COLORS } from "./toolbar-utils"
 import type { ActivePanel, ToolbarPosition } from "./toolbar-utils"
-import { SettingsPanel } from "./settings-panel"
 
-interface ToolbarProps {
+export interface ToolbarProps {
   onClose?: () => void
   onOpenBubbleEditor?: () => void
 }
@@ -88,13 +95,13 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
   return (
     <ToolbarPrimitive.Root
       className={cn(
-        "bg-gray-1 border-gray-7 fixed z-50 flex items-center gap-1 rounded-xl border p-2 shadow-2xl",
+        "bg-gray-1 border-gray-7 fixed z-50 flex items-center gap-1 rounded-xl border p-1.5 shadow-xl",
         getPositionClasses()
       )}
     >
       {/* Left Section */}
       <ToolbarPrimitive.ToolbarToggleGroup
-        defaultValue="inspect"
+        defaultValue="inspect-elements"
         type="single"
         className="flex items-center gap-1 pr-1.5"
       >
@@ -103,9 +110,9 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             variant="ghost"
             size="sm"
             className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-            title="Edit Element"
+            title="Browse Site Normally"
           >
-            <CursorClick weight="bold" className="size-5" />
+            <CursorClickIcon weight="bold" className="size-5" />
           </Button>
         </ToolbarPrimitive.ToggleItem>
 
@@ -114,9 +121,9 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             variant="ghost"
             size="sm"
             className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-            title="Edit Element"
+            title="Inspect Elements"
           >
-            <Scan weight="bold" className="size-5" />
+            <ScanIcon weight="bold" className="size-5" />
           </Button>
         </ToolbarPrimitive.ToggleItem>
 
@@ -125,9 +132,9 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             variant="ghost"
             size="sm"
             className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-            title="Edit Element"
+            title="Edit Content"
           >
-            <CursorText weight="bold" className="size-5" />
+            <CursorTextIcon weight="bold" className="size-5" />
           </Button>
         </ToolbarPrimitive.ToggleItem>
       </ToolbarPrimitive.ToolbarToggleGroup>
@@ -139,29 +146,28 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             variant="ghost"
             size="sm"
             className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-            title="Edit Element"
+            title="Capture Screenshot"
           >
-            <Camera weight="bold" className="size-5" />
+            <CameraIcon weight="bold" className="size-5" />
           </Button>
         </ToolbarPrimitive.ToggleItem>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <ToolbarPrimitive.ToggleItem asChild value="adjust-viewport" className="">
-              <Button
-                onClick={onOpenBubbleEditor}
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-                title="Edit Element"
-              >
-                <Devices weight="bold" className="size-5" />
-              </Button>
+          <ToolbarPrimitive.ToggleItem asChild value="adjust-viewport">
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
+                  title="Adjust Viewport"
+                >
+                  <DevicesIcon weight="bold" className="size-5" />
+                </Button>
+              </DropdownMenuTrigger>
             </ToolbarPrimitive.ToggleItem>
-          </DropdownMenuTrigger>
           <DropdownMenuContent
             sideOffset={20}
-            className="animate-in slide-in-from-top-2 left-0 rounded-2xl border shadow-2xl duration-200"
+            className="animate-in slide-in-from-top-2 left-0 rounded-xl border shadow-xl duration-200"
           >
             <div className="space-y-1">
               {BREAKPOINTS.map((breakpoint) => {
@@ -186,21 +192,21 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <ToolbarPrimitive.ToggleItem asChild value="adjust-viewport" className="">
+            <ToolbarPrimitive.ToggleItem asChild value="extension-settings">
               <Button
-                onClick={onOpenBubbleEditor}
                 variant="ghost"
                 size="sm"
                 className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-                title="Edit Element"
+                title="Edit Extension Settings"
               >
-                <GearSix weight="bold" className="size-5" />
+                <GearSixIcon weight="bold" className="size-5" />
               </Button>
             </ToolbarPrimitive.ToggleItem>
           </PopoverTrigger>
           <PopoverContent
+            align="center"
             sideOffset={20}
-            className="animate-in slide-in-from-top-2 left-0 rounded-2xl border shadow-2xl duration-200"
+            className="animate-in slide-in-from-top-2 left-0 rounded-xl border shadow-xl duration-200"
           >
             <SettingsPanel />
           </PopoverContent>
@@ -212,13 +218,14 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             variant="ghost"
             size="sm"
             className="text-muted-foreground hover:bg-gray-5 hover:text-gray-12 data-on:bg-accent-9 data-on:text-accent-contrast size-8 p-0"
-            title="Edit Element"
+            title="Exit Extension"
           >
-            <X weight="bold" className="size-5" />
+            <XIcon weight="bold" className="size-5" />
           </Button>
         </ToolbarPrimitive.ToggleItem>
       </ToolbarPrimitive.ToolbarToggleGroup>
     </ToolbarPrimitive.Root>
   )
 }
-export { Toolbar, type ToolbarProps }
+
+export { Toolbar }

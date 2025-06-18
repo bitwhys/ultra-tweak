@@ -23,24 +23,24 @@ export interface SettingsPanelProps {
 const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) => {
   return (
     <div>
-      <h3 className="mb-4 text-base font-semibold">Inspector</h3>
+      <h3 className="mb-2.5 text-base font-semibold">Inspector</h3>
 
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {/* Pin Options */}
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Pin options</span>
+          <span className="text-muted-foreground text-sm">Pin options</span>
           <Switch checked={settings?.toolbarSettings.pinOptions} />
         </div>
 
         {/* Show Guide Lines */}
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Show guide lines</span>
+          <span className="text-muted-foreground text-sm">Show guide lines</span>
           <Switch checked={settings?.extensionSettings.showGuideLines} />
         </div>
 
         {/* Guide Color */}
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Guide color</span>
+          <span className="text-muted-foreground text-sm">Guide color</span>
           <div className="flex gap-2">
             {GUIDE_COLORS.map((color) => (
               <button
@@ -58,7 +58,7 @@ const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) 
 
         {/* Show CSS Box */}
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Show css box</span>
+          <span className="text-muted-foreground text-sm">Show css box</span>
           <Switch checked={settings?.extensionSettings.showCssBox} />
         </div>
 
