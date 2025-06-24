@@ -33,16 +33,18 @@ import {
   Zap,
 } from "lucide-react"
 
+import { cn } from "@/lib/utils.ts"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
 interface BubbleEditorProps {
@@ -255,7 +257,7 @@ const PropertyDrawer = ({
       <div className="absolute inset-0 z-10 bg-black/20" onClick={closeDrawer} />
 
       {activeDrawer === "add-class" && (
-        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
+        <div className="animate-in slide-in-from-bottom bg-gray-2 absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 duration-200">
           <div className="p-4">
             <Input
               value={newClass}
@@ -283,7 +285,7 @@ const PropertyDrawer = ({
       )}
 
       {activeDrawer === "edit-property" && selectedProperty && (
-        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
+        <div className="animate-in slide-in-from-bottom bg-gray-2 absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 duration-200">
           <div className="p-4">
             {/* Variant Tabs */}
             <div className="mb-4 flex gap-1">
@@ -398,26 +400,10 @@ const CompactModeBubbleEditor = ({
   setSelectedCategory,
   getCurrentProperties,
   handlePropertyClick,
-  // Drawer props
-  selectedProperty,
-  showArbitrary,
-  setShowArbitrary,
-  showImportant,
-  setShowImportant,
-  isPinned,
-  setIsPinned,
-  arbitraryValue,
-  setArbitraryValue,
-  handleArbitrarySave,
-  handleOptionSelect,
-  closeDrawer,
-  newClass,
-  setNewClass,
-  handleAddClass,
 }) => {
   return (
     <div
-      className={`fixed z-50 flex h-[600px] w-80 flex-col overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      className={`bg-gray-2 relative z-50 flex h-[600px] w-80 flex-col overflow-hidden rounded-md border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
       style={{
         left: currentPosition.x,
         top: currentPosition.y,
@@ -427,58 +413,50 @@ const CompactModeBubbleEditor = ({
       onMouseDown={handleMouseDown}
     >
       {/* Header */}
-      <div className="drag-handle flex cursor-grab items-center justify-between border-b border-slate-700 bg-slate-800 p-3 active:cursor-grabbing">
-        <div className="flex items-center gap-1 text-sm text-slate-400">
+      <div className="drag-handle bg-gray-2 flex cursor-grab items-center justify-between border-b p-3 active:cursor-grabbing">
+        <div className="text-muted-foreground flex items-center gap-1 text-sm">
           {element.parentTag && (
             <>
               <span className="capitalize">{element.parentTag}</span>
-              <ChevronRight className="h-3 w-3" />
+              <ChevronRight className="size-3" />
             </>
           )}
-          <span className="font-medium text-slate-200 capitalize">{element.tagName}</span>
+          <span className="text-foreground font-medium capitalize">{element.tagName}</span>
         </div>
         <div className="flex items-center gap-1">
           <Button
             onClick={toggleAdvancedMode}
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+            className="size-6 p-0"
             title="Advanced Mode"
           >
-            <Maximize2 className="h-3 w-3" />
+            <Maximize2 className="size-3" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-          >
+          <Button variant="ghost" size="sm" className="size-6 p-0">
             <Copy className="h-3 w-3" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-          >
-            <MoreHorizontal className="h-3 w-3" />
+          <Button variant="ghost" size="sm" className="size-6 p-0">
+            <MoreHorizontal className="size-3" />
           </Button>
         </div>
       </div>
 
       {/* Classes Display */}
-      <div className="border-b border-slate-700 bg-slate-900/50 p-3">
-        <ScrollArea className="mb-3 h-24">
+      <div className="bg-gray-1 border-b p-2">
+        <ScrollArea className="mb-3 h-40">
           <div className="flex min-h-[2rem] flex-wrap gap-1">
             {filteredClasses.map((className, index) => (
               <div
                 key={index}
-                className="group relative flex items-center gap-1 rounded border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 transition-colors hover:bg-slate-600"
+                className="group bg-gray-3 border-gray-7 text-muted-foreground hover:text-foreground hover:bg-gray-5 relative flex items-center gap-1 border border-dashed px-2 py-1 text-xs transition-colors"
               >
                 <span>{className}</span>
                 <button
                   onClick={() => handleRemoveClass(className)}
-                  className="ml-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400"
+                  className="hover:text-danger-9 ml-1 opacity-0 transition-opacity group-hover:opacity-100"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="size-3" />
                 </button>
               </div>
             ))}
@@ -491,7 +469,7 @@ const CompactModeBubbleEditor = ({
             onClick={() => setActiveDrawer("add-class")}
             variant="ghost"
             size="sm"
-            className="h-8 border border-dashed border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+            className="border-gray-7 text-muted-foreground hover:bg-gray-5 hover:text-foreground h-7 border border-dashed"
           >
             <Plus className="mr-1 h-3 w-3" />
             class
@@ -499,21 +477,18 @@ const CompactModeBubbleEditor = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground size-6 p-0"
           >
-            <Copy className="h-3 w-3" />
+            <Copy className="size-3" />
           </Button>
         </div>
       </div>
 
       {/* Category Group Selector */}
-      <div className="border-b border-slate-700 bg-slate-800 p-3">
+      <div className="bg-gray-2 border-b p-0.5">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-8 w-full justify-between text-slate-300 hover:bg-slate-700"
-            >
+            <Button variant="ghost" className="h-8 w-full justify-between">
               <div className="flex items-center gap-2">
                 {React.createElement(getCurrentCategoryGroup().icon, { className: "w-4 h-4" })}
                 <span>{getCurrentCategoryGroup().name}</span>
@@ -521,21 +496,22 @@ const CompactModeBubbleEditor = ({
               <ChevronDown className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 border-slate-700 bg-slate-800">
+          <DropdownMenuContent sideOffset={8} side="right" className="w-56">
             {Object.entries(CATEGORY_GROUPS).map(([groupId, group]) => {
               const Icon = group.icon
               return (
                 <DropdownMenuItem
                   key={groupId}
                   onClick={() => handleCategoryGroupChange(groupId)}
-                  className="text-slate-300 focus:bg-slate-700 focus:text-slate-200"
+                  className=""
                 >
                   <Icon className="mr-2 h-4 w-4" />
                   <span>{group.name}</span>
-                  <span className="ml-auto text-xs text-slate-500">
-                    {group.categories.length}{" "}
-                    {group.categories.length === 1 ? "category" : "categories"}
-                  </span>
+                  {/*<span className="ml-auto text-xs text-slate-500">*/}
+                  {/*  {" "}*/}
+                  {/*  {group.categories.length === 1 ? "category" : "categories"}*/}
+                  {/*</span>*/}
+                  <DropdownMenuShortcut>{group.categories.length}</DropdownMenuShortcut>
                 </DropdownMenuItem>
               )
             })}
@@ -544,40 +520,45 @@ const CompactModeBubbleEditor = ({
       </div>
 
       {/* Category Tabs */}
-      <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-800">
-        {getCurrentCategories().map((category) => {
-          const Icon = category.icon
-          return (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`flex items-center gap-1 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === category.id
-                  ? "border-b-2 border-indigo-500 bg-slate-700 text-slate-100"
-                  : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
-              }`}
-            >
-              <Icon className="h-3 w-3" />
-              {category.name}
-            </button>
-          )
-        })}
-      </div>
+      <ScrollArea className="bg-gray-2 w-[calc(--spacing(80)-2px)] overflow-x-auto border-b">
+        <div className="flex w-max">
+          {getCurrentCategories().map((category) => {
+            const Icon = category.icon
+            return (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`flex items-center gap-1 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
+                  selectedCategory === category.id
+                    ? "bg-gray-5 text-foreground border-accent-9 border-b-2"
+                    : "text-gray-10 hover:bg-gray-4 hover:text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-3 w-3" />
+                {category.name}
+              </button>
+            )
+          })}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       {/* Properties Grid */}
       <ScrollArea className="flex-1">
-        <div className="p-3">
-          <div className="grid grid-cols-3 gap-1.5">
+        <div className="p-2">
+          <div className="flex basis-36 flex-wrap gap-2">
             {getCurrentProperties().map((property) => (
               <button
                 key={property.name}
                 onClick={() => handlePropertyClick(property)}
-                className="rounded-full border border-slate-600 bg-slate-700 px-3 py-2 text-center text-xs transition-all hover:bg-slate-600"
+                className={cn(
+                  "bg-gray-4 hover:bg-gray-5 flex items-center justify-between gap-x-3 border px-3 py-2 text-xs transition-all"
+                )}
               >
-                <div className="truncate text-slate-400 lowercase">
+                <div className="text-gray-10 truncate lowercase">
                   {property.name.replace("-", " ")}
                 </div>
-                <div className="truncate font-medium text-slate-200">{property.value}</div>
+                <div className="text-foreground truncate font-medium">{property.value}</div>
               </button>
             ))}
           </div>
@@ -585,24 +566,6 @@ const CompactModeBubbleEditor = ({
       </ScrollArea>
 
       {/* Property Drawer */}
-      <PropertyDrawer
-        activeDrawer={activeDrawer}
-        selectedProperty={selectedProperty}
-        showArbitrary={showArbitrary}
-        setShowArbitrary={setShowArbitrary}
-        showImportant={showImportant}
-        setShowImportant={setShowImportant}
-        isPinned={isPinned}
-        setIsPinned={setIsPinned}
-        arbitraryValue={arbitraryValue}
-        setArbitraryValue={setArbitraryValue}
-        handleArbitrarySave={handleArbitrarySave}
-        handleOptionSelect={handleOptionSelect}
-        closeDrawer={closeDrawer}
-        newClass={newClass}
-        setNewClass={setNewClass}
-        handleAddClass={handleAddClass}
-      />
     </div>
   )
 }
@@ -637,36 +600,18 @@ const AdvancedModeBubbleEditor = ({
   isQuickActionsCollapsed,
   setIsQuickActionsCollapsed,
   applyPreset,
-  // Drawer props
-  selectedProperty,
-  showArbitrary,
-  setShowArbitrary,
-  showImportant,
-  setShowImportant,
-  isPinned,
-  setIsPinned,
-  arbitraryValue,
-  setArbitraryValue,
-  handleArbitrarySave,
-  handleOptionSelect,
-  closeDrawer,
-  newClass,
-  setNewClass,
-  handleAddClass,
 }) => {
   return (
     <div
-      className={`fixed z-50 flex h-[600px] w-[900px] flex-col overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      className={`bg-gray-2 z-50 flex h-[600px] w-[800px] flex-col overflow-hidden border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
       style={{
         left: Math.max(20, currentPosition.x - 250),
         top: currentPosition.y,
-        fontFamily:
-          'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
       }}
       onMouseDown={handleMouseDown}
     >
       {/* Advanced Header Toolbar */}
-      <div className="drag-handle flex cursor-grab items-center justify-between border-b border-slate-700 bg-slate-800 p-3 active:cursor-grabbing">
+      <div className="drag-handle bg-gray-2 flex cursor-grab items-center justify-between border-b p-3 active:cursor-grabbing">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 text-sm text-slate-400">
             {element.parentTag && (
@@ -749,11 +694,11 @@ const AdvancedModeBubbleEditor = ({
       </div>
 
       {/* Three Panel Layout */}
-      <div className="flex min-h-0 flex-1">
+      <div className="grid min-h-0 w-full flex-1 grid-cols-[auto_1fr_auto]">
         {/* Left Panel - Element Tree & Multi-Select */}
-        <div className="flex w-56 flex-col border-r border-slate-700 bg-slate-900/50">
+        <div className="bg-gray-1 flex w-56 flex-col border-r">
           <div
-            className="border-b border-slate-700 p-3"
+            className="border-b p-3"
             style={{ height: isQuickActionsCollapsed ? "calc(100% - 60px)" : "calc(100% - 140px)" }}
           >
             <h3 className="mb-2 text-sm font-medium text-slate-200">Element Tree</h3>
@@ -825,7 +770,7 @@ const AdvancedModeBubbleEditor = ({
         {/* Center Panel - Properties & Controls */}
         <div className="flex flex-1 flex-col">
           {/* Classes Display with Search */}
-          <div className="border-b border-slate-700 bg-slate-900/50 p-3">
+          <div className="bg-gray-1 border-b p-3">
             <div className="mb-3 flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 text-slate-500" />
@@ -867,7 +812,7 @@ const AdvancedModeBubbleEditor = ({
           </div>
 
           {/* Category Group Navigation */}
-          <div className="flex items-center justify-between border-b border-slate-700 bg-slate-800 p-3">
+          <div className="bg-gray-2 flex items-center justify-between border-b p-3">
             <div className="flex items-center gap-2">
               {Object.entries(CATEGORY_GROUPS).map(([groupId, group]) => {
                 const Icon = group.icon
@@ -890,7 +835,7 @@ const AdvancedModeBubbleEditor = ({
           </div>
 
           {/* Category Tabs */}
-          <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-800">
+          <div className="bg-gray-2 flex overflow-x-auto border-b">
             {getCurrentCategories().map((category) => {
               const Icon = category.icon
               return (
@@ -932,9 +877,9 @@ const AdvancedModeBubbleEditor = ({
         </div>
 
         {/* Right Panel - Advanced Tools */}
-        <div className="flex w-64 flex-col border-l border-slate-700 bg-slate-900/50">
+        <div className="bg-gray-1 flex w-64 flex-col border-l">
           {/* Tab Navigation */}
-          <div className="flex border-b border-slate-700">
+          <div className="flex border-b">
             {[
               { id: "properties", label: "Props", icon: Settings },
               { id: "history", label: "History", icon: History },
@@ -1055,25 +1000,7 @@ const AdvancedModeBubbleEditor = ({
         </div>
       </div>
 
-      {/* Property Drawer */}
-      <PropertyDrawer
-        activeDrawer={activeDrawer}
-        selectedProperty={selectedProperty}
-        showArbitrary={showArbitrary}
-        setShowArbitrary={setShowArbitrary}
-        showImportant={showImportant}
-        setShowImportant={setShowImportant}
-        isPinned={isPinned}
-        setIsPinned={setIsPinned}
-        arbitraryValue={arbitraryValue}
-        setArbitraryValue={setArbitraryValue}
-        handleArbitrarySave={handleArbitrarySave}
-        handleOptionSelect={handleOptionSelect}
-        closeDrawer={closeDrawer}
-        newClass={newClass}
-        setNewClass={setNewClass}
-        handleAddClass={handleAddClass}
-      />
+      {/* TODO: Property Drawer */}
     </div>
   )
 }
