@@ -25,7 +25,7 @@ const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) 
     <div>
       <h3 className="mb-2.5 text-base font-semibold">Inspector</h3>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         {/* Pin Options */}
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground text-sm">Pin options</span>
@@ -45,7 +45,7 @@ const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) 
             {GUIDE_COLORS.map((color) => (
               <button
                 key={color.value}
-                className={`h-6 w-6 rounded-full ${color.class} border-2 transition-all ${
+                className={`size-5 rounded-full ${color.class} border-2 transition-all ${
                   settings?.extensionSettings.guideColor === color.value
                     ? "scale-110 border-white"
                     : "border-slate-600 hover:border-slate-400"
@@ -68,17 +68,19 @@ const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) 
           <div className="grid grid-cols-2 gap-2">
             {(["top-left", "top-right", "bottom-left", "bottom-right"] as ToolbarPosition[]).map(
               (pos) => (
-                <button
+                <Button
                   key={pos}
                   onClick={() => setPosition?.(pos)}
-                  className={`rounded-lg px-3 py-2 text-xs transition-colors ${
+                  variant="secondary"
+                  size="sm"
+                  className={`${
                     position === pos
                       ? "bg-accent-9 text-accent-contrast"
                       : "bg-accent text-muted-foreground hover:bg-gray-5"
                   }`}
                 >
                   {pos.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                </button>
+                </Button>
               )
             )}
           </div>
@@ -87,7 +89,7 @@ const SettingsPanel = ({ settings, position, setPosition }: SettingsPanelProps) 
 
       {/* Edit Tailwind Config Button */}
       <Button className="bg-accent-9 text-accent-contrast hover:bg-accent-10 mt-6 w-full">
-        Edit Tailwind Config
+        Edit Theme
       </Button>
     </div>
   )

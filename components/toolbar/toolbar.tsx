@@ -3,7 +3,6 @@ import {
   CameraIcon,
   CursorClickIcon,
   CursorTextIcon,
-  Devices,
   DevicesIcon,
   GearSixIcon,
   ScanIcon,
@@ -12,7 +11,7 @@ import {
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar"
 
 import { cn } from "@/lib/utils.ts"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,16 +21,17 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover.tsx"
 
 import { SettingsPanel } from "./settings-panel"
-import { BREAKPOINTS, GUIDE_COLORS } from "./toolbar-utils"
+import { BREAKPOINTS } from "./toolbar-utils"
 import type { ActivePanel, ToolbarPosition } from "./toolbar-utils"
 
 export interface ToolbarProps {
   onClose?: () => void
   onOpenBubbleEditor?: () => void
+  location?: "top-left" | "top-right" | "bottom-left" | "bottom-right"
 }
 
-const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
-  const [position, setPosition] = useState<ToolbarPosition>("top-left")
+const Toolbar = ({ onClose, location = "top-right", onOpenBubbleEditor }: ToolbarProps) => {
+  const [position, setPosition] = useState<ToolbarPosition>(location)
   const [activePanel, setActivePanel] = useState<ActivePanel>(null)
   const [settings, setSettings] = useState({
     pinOptions: true,
@@ -39,6 +39,11 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
     guideColor: "#3b82f6",
     showCssBox: true,
   })
+
+  // FIXME: JUST FOR TESTING
+  const log = (...messages: string[]) => {
+    console.log("[DEBUG - Toolbar]:", ...messages)
+  }
 
   const getPositionClasses = () => {
     switch (position) {
@@ -51,31 +56,8 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
       case "bottom-right":
         return "bottom-4 right-4"
       default:
-        return "top-4 left-4"
+        return "top-4 right-4"
     }
-  }
-
-  const getPanelPositionClasses = () => {
-    const isRightSide = position.includes("right")
-    const isBottomSide = position.includes("bottom")
-
-    let classes = ""
-
-    // Vertical positioning
-    if (isBottomSide) {
-      classes += "bottom-full mb-2 "
-    } else {
-      classes += "top-full mt-2 "
-    }
-
-    // Horizontal anchoring
-    if (isRightSide) {
-      classes += "right-0"
-    } else {
-      classes += "left-0"
-    }
-
-    return classes
   }
 
   const togglePanel = (panel: ActivePanel) => {
@@ -95,7 +77,7 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
   return (
     <ToolbarPrimitive.Root
       className={cn(
-        "bg-gray-1 border-gray-7 fixed z-50 flex items-center gap-1 rounded-xl border p-1.5 shadow-xl",
+        "bg-gray-1 border-gray-7 fixed z-50 flex h-11 items-center gap-1 rounded-xl border p-1.5 shadow-xl",
         getPositionClasses()
       )}
     >
@@ -138,9 +120,13 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
           </Button>
         </ToolbarPrimitive.ToggleItem>
       </ToolbarPrimitive.ToolbarToggleGroup>
-      <ToolbarPrimitive.Separator className="h-6 w-px bg-slate-600" />
+      <ToolbarPrimitive.Separator className="bg-gray-7 h-full w-px" />
       {/* Right Section */}
-      <ToolbarPrimitive.ToolbarToggleGroup type="single" className="flex items-center gap-1 pl-1.5">
+      <ToolbarPrimitive.ToolbarToggleGroup
+        onValueChange={log}
+        type="single"
+        className="flex items-center gap-1 pl-1.5"
+      >
         <ToolbarPrimitive.ToggleItem asChild value="capture-screenshot" className="">
           <Button
             variant="ghost"
@@ -154,7 +140,8 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
 
         <DropdownMenu>
           <ToolbarPrimitive.ToggleItem asChild value="adjust-viewport">
-              <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <ToolbarPrimitive.ToggleItem asChild value="adjust-viewport">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -163,10 +150,14 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
                 >
                   <DevicesIcon weight="bold" className="size-5" />
                 </Button>
-              </DropdownMenuTrigger>
-            </ToolbarPrimitive.ToggleItem>
+              </ToolbarPrimitive.ToggleItem>
+            </DropdownMenuTrigger>
+          </ToolbarPrimitive.ToggleItem>
           <DropdownMenuContent
-            sideOffset={20}
+            collisionPadding={{
+              right: 16,
+            }}
+            sideOffset={16}
             className="animate-in slide-in-from-top-2 left-0 rounded-xl border shadow-xl duration-200"
           >
             <div className="space-y-1">
@@ -204,6 +195,9 @@ const Toolbar = ({ onClose, onOpenBubbleEditor }: ToolbarProps) => {
             </ToolbarPrimitive.ToggleItem>
           </PopoverTrigger>
           <PopoverContent
+            collisionPadding={{
+              right: 16,
+            }}
             align="center"
             sideOffset={20}
             className="animate-in slide-in-from-top-2 left-0 rounded-xl border shadow-xl duration-200"

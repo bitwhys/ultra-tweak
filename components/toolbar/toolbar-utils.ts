@@ -31,5 +31,5 @@ export interface ExtensionSettings {
   guideColor: string
   showCssBox: boolean
   tailwindConfigPath: string
-  defaultView: 'quick' | 'advanced'
+  defaultView: "quick" | "advanced"
 }

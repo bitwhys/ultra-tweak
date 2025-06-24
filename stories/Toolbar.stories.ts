@@ -20,3 +20,20 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {},
 }
+
+export const TopLeft: Story = {
+  args: {
+    location: "top-left",
+  },
+}
+
+export const BottomRight: Story = {
+  args: {
+    location: "bottom-right",
+  },
+}
+export const BottomLeft: Story = {
+  args: {
+    location: "bottom-left",
+  },
+}
