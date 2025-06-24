@@ -403,7 +403,7 @@ const CompactModeBubbleEditor = ({
 }) => {
   return (
     <div
-      className={`bg-gray-2 relative z-50 flex h-[600px] w-80 flex-col overflow-hidden rounded-md border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      className={`bg-gray-2 relative z-50 flex h-[600px] w-80 flex-col overflow-hidden rounded-md border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-accent-9 ring-2" : ""}`}
       style={{
         left: currentPosition.x,
         top: currentPosition.y,
@@ -603,7 +603,7 @@ const AdvancedModeBubbleEditor = ({
 }) => {
   return (
     <div
-      className={`bg-gray-2 z-50 flex h-[600px] w-[800px] flex-col overflow-hidden border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      className={`bg-gray-2 z-50 flex h-[600px] w-[800px] flex-col overflow-hidden border shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-accent-9 ring-2" : ""}`}
       style={{
         left: Math.max(20, currentPosition.x - 250),
         top: currentPosition.y,
