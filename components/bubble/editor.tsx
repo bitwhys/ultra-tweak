@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   Baby,
   Box,
@@ -229,476 +229,434 @@ const MOCK_PRESETS = [
 
 type DrawerType = "add-class" | "edit-property" | "edit-arbitrary" | null
 
-const BubbleEditor = ({
-  element = {
-    tagName: "div",
-    parentTag: "div",
-    classes: ["flex", "min-w-0", "flex-1", "flex-col"],
-  },
-  onClassAdd,
-  onClassRemove,
-  onClose,
-}: BubbleEditorProps) => {
-  const [isAdvancedMode, setIsAdvancedMode] = useState(false)
-  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState("structure")
-  const [selectedCategory, setSelectedCategory] = useState("layout")
-  const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null)
-  const [selectedProperty, setSelectedProperty] = useState<any>(null)
-  const [selectedVariant, setSelectedVariant] = useState("default")
-  const [newClass, setNewClass] = useState("")
-  const [arbitraryValue, setArbitraryValue] = useState("")
-  const [isPinned, setIsPinned] = useState(false)
-  const [showArbitrary, setShowArbitrary] = useState(false)
-  const [showImportant, setShowImportant] = useState(false)
-  const [livePreview, setLivePreview] = useState(true)
-  const [classFilter, setClassFilter] = useState("")
-  const [selectedElements, setSelectedElements] = useState([element])
-  const [activeTab, setActiveTab] = useState<"properties" | "history" | "presets" | "performance">(
-    "properties"
-  )
-  const [isQuickActionsCollapsed, setIsQuickActionsCollapsed] = useState(false)
+// Drawer component used in both modes
+const PropertyDrawer = ({
+  activeDrawer,
+  selectedProperty,
+  showArbitrary,
+  setShowArbitrary,
+  showImportant,
+  setShowImportant,
+  isPinned,
+  setIsPinned,
+  arbitraryValue,
+  setArbitraryValue,
+  handleArbitrarySave,
+  handleOptionSelect,
+  closeDrawer,
+  newClass,
+  setNewClass,
+  handleAddClass,
+}) => {
+  if (!activeDrawer) return null
 
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-  const [currentPosition, setCurrentPosition] = useState({ x: 100, y: 100 })
+  return (
+    <>
+      <div className="absolute inset-0 z-10 bg-black/20" onClick={closeDrawer} />
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget || (e.target as HTMLElement).closest(".drag-handle")) {
-      setIsDragging(true)
-      const rect = e.currentTarget.getBoundingClientRect()
-      setDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      })
-      e.preventDefault()
-    }
-  }
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      const newX = Math.max(
-        0,
-        Math.min(window.innerWidth - (isAdvancedMode ? 900 : 320), e.clientX - dragOffset.x)
-      )
-      const newY = Math.max(0, Math.min(window.innerHeight - 600, e.clientY - dragOffset.y))
-
-      setCurrentPosition({ x: newX, y: newY })
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-  }
-
-  // Add useEffect for global mouse events
-  React.useEffect(() => {
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
-      document.body.style.cursor = "grabbing"
-      document.body.style.userSelect = "none"
-
-      return () => {
-        document.removeEventListener("mousemove", handleMouseMove)
-        document.removeEventListener("mouseup", handleMouseUp)
-        document.body.style.cursor = ""
-        document.body.style.userSelect = ""
-      }
-    }
-  }, [isDragging, dragOffset, isAdvancedMode])
-
-  const handleAddClass = () => {
-    if (newClass.trim()) {
-      onClassAdd?.(newClass.trim())
-      setNewClass("")
-      setActiveDrawer(null)
-    }
-  }
-
-  const handleRemoveClass = (className: string) => {
-    onClassRemove?.(className)
-  }
-
-  const handlePropertyClick = (property: any) => {
-    setSelectedProperty(property)
-    setActiveDrawer("edit-property")
-  }
-
-  const handleOptionSelect = (option: any) => {
-    const className = selectedProperty.prefix
-      ? `${selectedProperty.prefix}-${option.value}`
-      : option.value
-    onClassAdd?.(className)
-    if (!isPinned) {
-      setActiveDrawer(null)
-    }
-  }
-
-  const handleArbitrarySave = () => {
-    if (arbitraryValue.trim() && selectedProperty) {
-      const className = selectedProperty.prefix
-        ? `${selectedProperty.prefix}-[${arbitraryValue.trim()}]`
-        : `[${arbitraryValue.trim()}]`
-      onClassAdd?.(className)
-      setArbitraryValue("")
-      setActiveDrawer(null)
-    }
-  }
-
-  const closeDrawer = () => {
-    setActiveDrawer(null)
-    setSelectedProperty(null)
-    setShowArbitrary(false)
-  }
-
-  const filteredClasses = element.classes.filter((className) =>
-    className.toLowerCase().includes(classFilter.toLowerCase())
-  )
-
-  const toggleAdvancedMode = () => {
-    setIsAdvancedMode(!isAdvancedMode)
-    if (activeDrawer) {
-      setActiveDrawer(null)
-    }
-  }
-
-  const applyPreset = (preset: any) => {
-    preset.classes.forEach((className: string) => {
-      onClassAdd?.(className)
-    })
-  }
-
-  const handleCategoryGroupChange = (groupId: string) => {
-    setSelectedCategoryGroup(groupId)
-    // Auto-select first category in the group
-    const firstCategory = CATEGORY_GROUPS[groupId as keyof typeof CATEGORY_GROUPS].categories[0]
-    setSelectedCategory(firstCategory.id)
-  }
-
-  const getCurrentProperties = () => {
-    switch (selectedCategory) {
-      case "layout":
-        return LAYOUT_PROPERTIES
-      case "flex-grid":
-        return FLEX_PROPERTIES
-      case "typography":
-        return TYPOGRAPHY_PROPERTIES
-      default:
-        return LAYOUT_PROPERTIES
-    }
-  }
-
-  const getCurrentCategoryGroup = () =>
-    CATEGORY_GROUPS[selectedCategoryGroup as keyof typeof CATEGORY_GROUPS]
-  const getCurrentCategories = () => getCurrentCategoryGroup().categories
-
-  // Compact Mode (Original Design)
-  if (!isAdvancedMode) {
-    return (
-      <div
-        className={`fixed z-50 flex h-[600px] w-80 flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
-        style={{
-          left: currentPosition.x,
-          top: currentPosition.y,
-          fontFamily:
-            'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-        }}
-        onMouseDown={handleMouseDown}
-      >
-        {/* Header */}
-        <div className="drag-handle flex cursor-grab items-center justify-between border-b border-slate-700 bg-slate-800 p-3 active:cursor-grabbing">
-          <div className="flex items-center gap-1 text-sm text-slate-400">
-            {element.parentTag && (
-              <>
-                <span className="capitalize">{element.parentTag}</span>
-                <ChevronRight className="h-3 w-3" />
-              </>
-            )}
-            <span className="font-medium text-slate-200 capitalize">{element.tagName}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              onClick={toggleAdvancedMode}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-              title="Advanced Mode"
-            >
-              <Maximize2 className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-            >
-              <Copy className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-            >
-              <MoreHorizontal className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Classes Display */}
-        <div className="border-b border-slate-700 bg-slate-900/50 p-3">
-          <ScrollArea className="mb-3 h-24">
-            <div className="flex min-h-[2rem] flex-wrap gap-1">
-              {element.classes.map((className, index) => (
-                <div
-                  key={index}
-                  className="group relative flex items-center gap-1 rounded border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 transition-colors hover:bg-slate-600"
-                >
-                  <span>{className}</span>
-                  <button
-                    onClick={() => handleRemoveClass(className)}
-                    className="ml-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
+      {activeDrawer === "add-class" && (
+        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
+          <div className="p-4">
+            <Input
+              value={newClass}
+              onChange={(e) => setNewClass(e.target.value)}
+              placeholder="Enter classname"
+              className="mb-4 border-slate-600 bg-slate-700 text-slate-200 placeholder:text-slate-500"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleAddClass()
+                if (e.key === "Escape") closeDrawer()
+              }}
+              autoFocus
+            />
+            <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
+              <Info className="h-4 w-4" />
+              <span>You can separate multiple classes with space</span>
             </div>
-          </ScrollArea>
-
-          {/* Add Class Button */}
-          <div className="flex items-center justify-between">
             <Button
-              onClick={() => setActiveDrawer("add-class")}
-              variant="ghost"
-              size="sm"
-              className="h-8 border border-dashed border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+              onClick={handleAddClass}
+              className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
             >
-              <Plus className="mr-1 h-3 w-3" />
-              class
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-            >
-              <Copy className="h-3 w-3" />
+              Add class
             </Button>
           </div>
         </div>
+      )}
 
-        {/* Category Group Selector */}
-        <div className="border-b border-slate-700 bg-slate-800 p-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-8 w-full justify-between text-slate-300 hover:bg-slate-700"
-              >
-                <div className="flex items-center gap-2">
-                  {React.createElement(getCurrentCategoryGroup().icon, { className: "w-4 h-4" })}
-                  <span>{getCurrentCategoryGroup().name}</span>
-                </div>
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 border-slate-700 bg-slate-800">
-              {Object.entries(CATEGORY_GROUPS).map(([groupId, group]) => {
-                const Icon = group.icon
-                return (
-                  <DropdownMenuItem
-                    key={groupId}
-                    onClick={() => handleCategoryGroupChange(groupId)}
-                    className="text-slate-300 focus:bg-slate-700 focus:text-slate-200"
-                  >
-                    <Icon className="mr-2 h-4 w-4" />
-                    <span>{group.name}</span>
-                    <span className="ml-auto text-xs text-slate-500">
-                      {group.categories.length}{" "}
-                      {group.categories.length === 1 ? "category" : "categories"}
-                    </span>
-                  </DropdownMenuItem>
-                )
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-800">
-          {getCurrentCategories().map((category) => {
-            const Icon = category.icon
-            return (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`flex items-center gap-1 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
-                  selectedCategory === category.id
-                    ? "border-b-2 border-indigo-500 bg-slate-700 text-slate-100"
-                    : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
-                }`}
-              >
-                <Icon className="h-3 w-3" />
-                {category.name}
+      {activeDrawer === "edit-property" && selectedProperty && (
+        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
+          <div className="p-4">
+            {/* Variant Tabs */}
+            <div className="mb-4 flex gap-1">
+              <button className="rounded bg-indigo-600 px-3 py-1 text-sm text-white">
+                default
               </button>
-            )
-          })}
-        </div>
-
-        {/* Properties Grid */}
-        <ScrollArea className="flex-1">
-          <div className="p-3">
-            <div className="grid grid-cols-3 gap-1.5">
-              {getCurrentProperties().map((property) => (
-                <button
-                  key={property.name}
-                  onClick={() => handlePropertyClick(property)}
-                  className="rounded-full border border-slate-600 bg-slate-700 px-3 py-2 text-center text-xs transition-all hover:bg-slate-600"
-                >
-                  <div className="truncate text-slate-400 lowercase">
-                    {property.name.replace("-", " ")}
-                  </div>
-                  <div className="truncate font-medium text-slate-200">{property.value}</div>
-                </button>
-              ))}
+              <button className="rounded bg-slate-700 px-3 py-1 text-sm text-slate-300 hover:bg-slate-600">
+                +
+              </button>
             </div>
+
+            {/* Property Header */}
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-slate-300">
+                {selectedProperty.prefix || selectedProperty.name}-
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowArbitrary(!showArbitrary)}
+                  className={`rounded px-2 py-1 text-xs ${
+                    showArbitrary ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                  }`}
+                >
+                  [..]
+                </button>
+                <button
+                  onClick={() => setShowImportant(!showImportant)}
+                  className={`rounded px-2 py-1 text-xs ${
+                    showImportant ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                  }`}
+                >
+                  !
+                </button>
+                <button
+                  onClick={() => setIsPinned(!isPinned)}
+                  className={`rounded px-2 py-1 text-xs ${
+                    isPinned ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                  }`}
+                >
+                  {isPinned ? "unpin" : "pin"}
+                </button>
+              </div>
+            </div>
+
+            {/* Arbitrary Input */}
+            {showArbitrary ? (
+              <div className="space-y-4">
+                <div className="relative">
+                  <Input
+                    value={arbitraryValue}
+                    onChange={(e) => setArbitraryValue(e.target.value)}
+                    placeholder="Custom value"
+                    className="border-slate-600 bg-slate-700 pr-20 text-slate-200 placeholder:text-slate-500"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleArbitrarySave()
+                    }}
+                  />
+                  <span className="absolute top-1/2 right-3 -translate-y-1/2 rounded bg-slate-600 px-2 py-1 text-xs text-slate-300">
+                    arbitrary
+                  </span>
+                </div>
+                <Button
+                  onClick={handleArbitrarySave}
+                  className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  Save
+                </Button>
+              </div>
+            ) : (
+              /* Options List */
+              <ScrollArea className="h-64">
+                <div className="space-y-1">
+                  {(selectedProperty.name === "min-width"
+                    ? MIN_WIDTH_OPTIONS
+                    : selectedProperty.options
+                  ).map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleOptionSelect(option)}
+                      className="flex w-full items-center justify-between rounded p-3 text-left transition-colors hover:bg-slate-700"
+                    >
+                      <span className="text-slate-200">{option.value || option.label}</span>
+                      <span className="text-sm text-slate-500">{option.description}</span>
+                    </button>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// Compact Mode Component
+const CompactModeBubbleEditor = ({
+  element,
+  isDragging,
+  currentPosition,
+  handleMouseDown,
+  toggleAdvancedMode,
+  activeDrawer,
+  setActiveDrawer,
+  filteredClasses,
+  handleRemoveClass,
+  selectedCategoryGroup,
+  getCurrentCategoryGroup,
+  getCurrentCategories,
+  handleCategoryGroupChange,
+  selectedCategory,
+  setSelectedCategory,
+  getCurrentProperties,
+  handlePropertyClick,
+  // Drawer props
+  selectedProperty,
+  showArbitrary,
+  setShowArbitrary,
+  showImportant,
+  setShowImportant,
+  isPinned,
+  setIsPinned,
+  arbitraryValue,
+  setArbitraryValue,
+  handleArbitrarySave,
+  handleOptionSelect,
+  closeDrawer,
+  newClass,
+  setNewClass,
+  handleAddClass,
+}) => {
+  return (
+    <div
+      className={`fixed z-50 flex h-[600px] w-80 flex-col overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      style={{
+        left: currentPosition.x,
+        top: currentPosition.y,
+        fontFamily:
+          'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+      }}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Header */}
+      <div className="drag-handle flex cursor-grab items-center justify-between border-b border-slate-700 bg-slate-800 p-3 active:cursor-grabbing">
+        <div className="flex items-center gap-1 text-sm text-slate-400">
+          {element.parentTag && (
+            <>
+              <span className="capitalize">{element.parentTag}</span>
+              <ChevronRight className="h-3 w-3" />
+            </>
+          )}
+          <span className="font-medium text-slate-200 capitalize">{element.tagName}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            onClick={toggleAdvancedMode}
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+            title="Advanced Mode"
+          >
+            <Maximize2 className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          >
+            <MoreHorizontal className="h-3 w-3" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Classes Display */}
+      <div className="border-b border-slate-700 bg-slate-900/50 p-3">
+        <ScrollArea className="mb-3 h-24">
+          <div className="flex min-h-[2rem] flex-wrap gap-1">
+            {filteredClasses.map((className, index) => (
+              <div
+                key={index}
+                className="group relative flex items-center gap-1 rounded border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 transition-colors hover:bg-slate-600"
+              >
+                <span>{className}</span>
+                <button
+                  onClick={() => handleRemoveClass(className)}
+                  className="ml-1 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-400"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
           </div>
         </ScrollArea>
 
-        {/* Drawer Overlay */}
-        {activeDrawer && (
-          <div className="absolute inset-0 z-10 bg-black/20" onClick={closeDrawer} />
-        )}
-
-        {/* Add Class Drawer */}
-        {activeDrawer === "add-class" && (
-          <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
-            <div className="p-4">
-              <Input
-                value={newClass}
-                onChange={(e) => setNewClass(e.target.value)}
-                placeholder="Enter classname"
-                className="mb-4 border-slate-600 bg-slate-700 text-slate-200 placeholder:text-slate-500"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddClass()
-                  if (e.key === "Escape") closeDrawer()
-                }}
-                autoFocus
-              />
-              <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
-                <Info className="h-4 w-4" />
-                <span>You can separate multiple classes with space</span>
-              </div>
-              <Button
-                onClick={handleAddClass}
-                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                Add class
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Edit Property Drawer */}
-        {activeDrawer === "edit-property" && selectedProperty && (
-          <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
-            <div className="p-4">
-              {/* Variant Tabs */}
-              <div className="mb-4 flex gap-1">
-                <button className="rounded bg-indigo-600 px-3 py-1 text-sm text-white">
-                  default
-                </button>
-                <button className="rounded bg-slate-700 px-3 py-1 text-sm text-slate-300 hover:bg-slate-600">
-                  +
-                </button>
-              </div>
-
-              {/* Property Header */}
-              <div className="mb-4 flex items-center justify-between">
-                <span className="text-slate-300">
-                  {selectedProperty.prefix || selectedProperty.name}-
-                </span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowArbitrary(!showArbitrary)}
-                    className={`rounded px-2 py-1 text-xs ${
-                      showArbitrary ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                    }`}
-                  >
-                    [..]
-                  </button>
-                  <button
-                    onClick={() => setShowImportant(!showImportant)}
-                    className={`rounded px-2 py-1 text-xs ${
-                      showImportant ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                    }`}
-                  >
-                    !
-                  </button>
-                  <button
-                    onClick={() => setIsPinned(!isPinned)}
-                    className={`rounded px-2 py-1 text-xs ${
-                      isPinned ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                    }`}
-                  >
-                    {isPinned ? "unpin" : "pin"}
-                  </button>
-                </div>
-              </div>
-
-              {/* Arbitrary Input */}
-              {showArbitrary ? (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Input
-                      value={arbitraryValue}
-                      onChange={(e) => setArbitraryValue(e.target.value)}
-                      placeholder="Custom value"
-                      className="border-slate-600 bg-slate-700 pr-20 text-slate-200 placeholder:text-slate-500"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleArbitrarySave()
-                      }}
-                    />
-                    <span className="absolute top-1/2 right-3 -translate-y-1/2 rounded bg-slate-600 px-2 py-1 text-xs text-slate-300">
-                      arbitrary
-                    </span>
-                  </div>
-                  <Button
-                    onClick={handleArbitrarySave}
-                    className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-                  >
-                    Save
-                  </Button>
-                </div>
-              ) : (
-                /* Options List */
-                <ScrollArea className="h-64">
-                  <div className="space-y-1">
-                    {(selectedProperty.name === "min-width"
-                      ? MIN_WIDTH_OPTIONS
-                      : selectedProperty.options
-                    ).map((option: any) => (
-                      <button
-                        key={option.value}
-                        onClick={() => handleOptionSelect(option)}
-                        className="flex w-full items-center justify-between rounded p-3 text-left transition-colors hover:bg-slate-700"
-                      >
-                        <span className="text-slate-200">{option.value || option.label}</span>
-                        <span className="text-sm text-slate-500">{option.description}</span>
-                      </button>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Add Class Button */}
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={() => setActiveDrawer("add-class")}
+            variant="ghost"
+            size="sm"
+            className="h-8 border border-dashed border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          >
+            <Plus className="mr-1 h-3 w-3" />
+            class
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
-    )
-  }
 
-  // Advanced Mode (New Wide Layout)
+      {/* Category Group Selector */}
+      <div className="border-b border-slate-700 bg-slate-800 p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="h-8 w-full justify-between text-slate-300 hover:bg-slate-700"
+            >
+              <div className="flex items-center gap-2">
+                {React.createElement(getCurrentCategoryGroup().icon, { className: "w-4 h-4" })}
+                <span>{getCurrentCategoryGroup().name}</span>
+              </div>
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 border-slate-700 bg-slate-800">
+            {Object.entries(CATEGORY_GROUPS).map(([groupId, group]) => {
+              const Icon = group.icon
+              return (
+                <DropdownMenuItem
+                  key={groupId}
+                  onClick={() => handleCategoryGroupChange(groupId)}
+                  className="text-slate-300 focus:bg-slate-700 focus:text-slate-200"
+                >
+                  <Icon className="mr-2 h-4 w-4" />
+                  <span>{group.name}</span>
+                  <span className="ml-auto text-xs text-slate-500">
+                    {group.categories.length}{" "}
+                    {group.categories.length === 1 ? "category" : "categories"}
+                  </span>
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Category Tabs */}
+      <div className="flex overflow-x-auto border-b border-slate-700 bg-slate-800">
+        {getCurrentCategories().map((category) => {
+          const Icon = category.icon
+          return (
+            <button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`flex items-center gap-1 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === category.id
+                  ? "border-b-2 border-indigo-500 bg-slate-700 text-slate-100"
+                  : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+              }`}
+            >
+              <Icon className="h-3 w-3" />
+              {category.name}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Properties Grid */}
+      <ScrollArea className="flex-1">
+        <div className="p-3">
+          <div className="grid grid-cols-3 gap-1.5">
+            {getCurrentProperties().map((property) => (
+              <button
+                key={property.name}
+                onClick={() => handlePropertyClick(property)}
+                className="rounded-full border border-slate-600 bg-slate-700 px-3 py-2 text-center text-xs transition-all hover:bg-slate-600"
+              >
+                <div className="truncate text-slate-400 lowercase">
+                  {property.name.replace("-", " ")}
+                </div>
+                <div className="truncate font-medium text-slate-200">{property.value}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </ScrollArea>
+
+      {/* Property Drawer */}
+      <PropertyDrawer
+        activeDrawer={activeDrawer}
+        selectedProperty={selectedProperty}
+        showArbitrary={showArbitrary}
+        setShowArbitrary={setShowArbitrary}
+        showImportant={showImportant}
+        setShowImportant={setShowImportant}
+        isPinned={isPinned}
+        setIsPinned={setIsPinned}
+        arbitraryValue={arbitraryValue}
+        setArbitraryValue={setArbitraryValue}
+        handleArbitrarySave={handleArbitrarySave}
+        handleOptionSelect={handleOptionSelect}
+        closeDrawer={closeDrawer}
+        newClass={newClass}
+        setNewClass={setNewClass}
+        handleAddClass={handleAddClass}
+      />
+    </div>
+  )
+}
+
+// Advanced Mode Component
+const AdvancedModeBubbleEditor = ({
+  element,
+  isDragging,
+  currentPosition,
+  handleMouseDown,
+  toggleAdvancedMode,
+  activeDrawer,
+  setActiveDrawer,
+  filteredClasses,
+  handleRemoveClass,
+  classFilter,
+  setClassFilter,
+  selectedCategoryGroup,
+  getCurrentCategoryGroup,
+  getCurrentCategories,
+  handleCategoryGroupChange,
+  selectedCategory,
+  setSelectedCategory,
+  getCurrentProperties,
+  handlePropertyClick,
+  // Additional advanced mode props
+  selectedElements,
+  livePreview,
+  setLivePreview,
+  activeTab,
+  setActiveTab,
+  isQuickActionsCollapsed,
+  setIsQuickActionsCollapsed,
+  applyPreset,
+  // Drawer props
+  selectedProperty,
+  showArbitrary,
+  setShowArbitrary,
+  showImportant,
+  setShowImportant,
+  isPinned,
+  setIsPinned,
+  arbitraryValue,
+  setArbitraryValue,
+  handleArbitrarySave,
+  handleOptionSelect,
+  closeDrawer,
+  newClass,
+  setNewClass,
+  handleAddClass,
+}) => {
   return (
     <div
-      className={`fixed z-50 flex h-[600px] w-[900px] flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
+      className={`fixed z-50 flex h-[600px] w-[900px] flex-col overflow-hidden border border-slate-700 bg-slate-800 shadow-2xl transition-shadow ${isDragging ? "shadow-3xl ring-2 ring-indigo-500/50" : ""}`}
       style={{
         left: Math.max(20, currentPosition.x - 250),
         top: currentPosition.y,
@@ -802,7 +760,7 @@ const BubbleEditor = ({
             <ScrollArea className="h-full overflow-hidden">
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2 rounded bg-slate-700 p-2">
-                  <input type="checkbox" className="h-3 w-3" checked />
+                  <input type="checkbox" className="h-3 w-3" checked readOnly />
                   <span className="text-slate-200">div.container</span>
                 </div>
                 <div className="ml-4 flex items-center gap-2 rounded p-2 hover:bg-slate-700">
@@ -1097,133 +1055,275 @@ const BubbleEditor = ({
         </div>
       </div>
 
-      {/* Drawer Overlay for Advanced Mode */}
-      {activeDrawer && <div className="absolute inset-0 z-10 bg-black/20" onClick={closeDrawer} />}
-
-      {/* Add Class Drawer - Adjusted for Advanced Mode */}
-      {activeDrawer === "add-class" && (
-        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
-          <div className="p-4">
-            <Input
-              value={newClass}
-              onChange={(e) => setNewClass(e.target.value)}
-              placeholder="Enter classname"
-              className="mb-4 border-slate-600 bg-slate-700 text-slate-200 placeholder:text-slate-500"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddClass()
-                if (e.key === "Escape") closeDrawer()
-              }}
-              autoFocus
-            />
-            <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
-              <Info className="h-4 w-4" />
-              <span>You can separate multiple classes with space</span>
-            </div>
-            <Button
-              onClick={handleAddClass}
-              className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-            >
-              Add class
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Property Drawer - Adjusted for Advanced Mode */}
-      {activeDrawer === "edit-property" && selectedProperty && (
-        <div className="animate-in slide-in-from-bottom absolute right-0 bottom-0 left-0 z-20 border-t border-slate-600 bg-slate-800 duration-200">
-          <div className="p-4">
-            {/* Variant Tabs */}
-            <div className="mb-4 flex gap-1">
-              <button className="rounded bg-indigo-600 px-3 py-1 text-sm text-white">
-                default
-              </button>
-              <button className="rounded bg-slate-700 px-3 py-1 text-sm text-slate-300 hover:bg-slate-600">
-                +
-              </button>
-            </div>
-
-            {/* Property Header */}
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-slate-300">
-                {selectedProperty.prefix || selectedProperty.name}-
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowArbitrary(!showArbitrary)}
-                  className={`rounded px-2 py-1 text-xs ${
-                    showArbitrary ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                  }`}
-                >
-                  [..]
-                </button>
-                <button
-                  onClick={() => setShowImportant(!showImportant)}
-                  className={`rounded px-2 py-1 text-xs ${
-                    showImportant ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                  }`}
-                >
-                  !
-                </button>
-                <button
-                  onClick={() => setIsPinned(!isPinned)}
-                  className={`rounded px-2 py-1 text-xs ${
-                    isPinned ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
-                  }`}
-                >
-                  {isPinned ? "unpin" : "pin"}
-                </button>
-              </div>
-            </div>
-
-            {/* Arbitrary Input */}
-            {showArbitrary ? (
-              <div className="space-y-4">
-                <div className="relative">
-                  <Input
-                    value={arbitraryValue}
-                    onChange={(e) => setArbitraryValue(e.target.value)}
-                    placeholder="Custom value"
-                    className="border-slate-600 bg-slate-700 pr-20 text-slate-200 placeholder:text-slate-500"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleArbitrarySave()
-                    }}
-                  />
-                  <span className="absolute top-1/2 right-3 -translate-y-1/2 rounded bg-slate-600 px-2 py-1 text-xs text-slate-300">
-                    arbitrary
-                  </span>
-                </div>
-                <Button
-                  onClick={handleArbitrarySave}
-                  className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-                >
-                  Save
-                </Button>
-              </div>
-            ) : (
-              /* Options List */
-              <ScrollArea className="h-64">
-                <div className="space-y-1">
-                  {(selectedProperty.name === "min-width"
-                    ? MIN_WIDTH_OPTIONS
-                    : selectedProperty.options
-                  ).map((option: any) => (
-                    <button
-                      key={option.value}
-                      onClick={() => handleOptionSelect(option)}
-                      className="flex w-full items-center justify-between rounded p-3 text-left transition-colors hover:bg-slate-700"
-                    >
-                      <span className="text-slate-200">{option.value || option.label}</span>
-                      <span className="text-sm text-slate-500">{option.description}</span>
-                    </button>
-                  ))}
-                </div>
-              </ScrollArea>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Property Drawer */}
+      <PropertyDrawer
+        activeDrawer={activeDrawer}
+        selectedProperty={selectedProperty}
+        showArbitrary={showArbitrary}
+        setShowArbitrary={setShowArbitrary}
+        showImportant={showImportant}
+        setShowImportant={setShowImportant}
+        isPinned={isPinned}
+        setIsPinned={setIsPinned}
+        arbitraryValue={arbitraryValue}
+        setArbitraryValue={setArbitraryValue}
+        handleArbitrarySave={handleArbitrarySave}
+        handleOptionSelect={handleOptionSelect}
+        closeDrawer={closeDrawer}
+        newClass={newClass}
+        setNewClass={setNewClass}
+        handleAddClass={handleAddClass}
+      />
     </div>
   )
 }
+
+// Main BubbleEditor Component
+const BubbleEditor = ({
+  element = {
+    tagName: "div",
+    parentTag: "div",
+    classes: ["flex", "min-w-0", "flex-1", "flex-col"],
+  },
+  onClassAdd,
+  onClassRemove,
+  onClose,
+}: BubbleEditorProps) => {
+  const [isAdvancedMode, setIsAdvancedMode] = useState(false)
+  const [selectedCategoryGroup, setSelectedCategoryGroup] = useState("structure")
+  const [selectedCategory, setSelectedCategory] = useState("layout")
+  const [activeDrawer, setActiveDrawer] = useState<DrawerType>(null)
+  const [selectedProperty, setSelectedProperty] = useState<any>(null)
+  const [selectedVariant, setSelectedVariant] = useState("default")
+  const [newClass, setNewClass] = useState("")
+  const [arbitraryValue, setArbitraryValue] = useState("")
+  const [isPinned, setIsPinned] = useState(false)
+  const [showArbitrary, setShowArbitrary] = useState(false)
+  const [showImportant, setShowImportant] = useState(false)
+  const [livePreview, setLivePreview] = useState(true)
+  const [classFilter, setClassFilter] = useState("")
+  const [selectedElements, setSelectedElements] = useState([element])
+  const [activeTab, setActiveTab] = useState<"properties" | "history" | "presets" | "performance">(
+    "properties"
+  )
+  const [isQuickActionsCollapsed, setIsQuickActionsCollapsed] = useState(false)
+
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [currentPosition, setCurrentPosition] = useState({ x: 100, y: 100 })
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget || (e.target as HTMLElement).closest(".drag-handle")) {
+      setIsDragging(true)
+      const rect = e.currentTarget.getBoundingClientRect()
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      })
+      e.preventDefault()
+    }
+  }
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const newX = Math.max(
+        0,
+        Math.min(window.innerWidth - (isAdvancedMode ? 900 : 320), e.clientX - dragOffset.x)
+      )
+      const newY = Math.max(0, Math.min(window.innerHeight - 600, e.clientY - dragOffset.y))
+
+      setCurrentPosition({ x: newX, y: newY })
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  // Add useEffect for global mouse events
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.body.style.cursor = "grabbing"
+      document.body.style.userSelect = "none"
+
+      return () => {
+        document.removeEventListener("mousemove", handleMouseMove)
+        document.removeEventListener("mouseup", handleMouseUp)
+        document.body.style.cursor = ""
+        document.body.style.userSelect = ""
+      }
+    }
+  }, [isDragging, dragOffset, isAdvancedMode])
+
+  const handleAddClass = () => {
+    if (newClass.trim()) {
+      onClassAdd?.(newClass.trim())
+      setNewClass("")
+      setActiveDrawer(null)
+    }
+  }
+
+  const handleRemoveClass = (className: string) => {
+    onClassRemove?.(className)
+  }
+
+  const handlePropertyClick = (property: any) => {
+    setSelectedProperty(property)
+    setActiveDrawer("edit-property")
+  }
+
+  const handleOptionSelect = (option: any) => {
+    const className = selectedProperty.prefix
+      ? `${selectedProperty.prefix}-${option.value}`
+      : option.value
+    onClassAdd?.(className)
+    if (!isPinned) {
+      setActiveDrawer(null)
+    }
+  }
+
+  const handleArbitrarySave = () => {
+    if (arbitraryValue.trim() && selectedProperty) {
+      const className = selectedProperty.prefix
+        ? `${selectedProperty.prefix}-[${arbitraryValue.trim()}]`
+        : `[${arbitraryValue.trim()}]`
+      onClassAdd?.(className)
+      setArbitraryValue("")
+      setActiveDrawer(null)
+    }
+  }
+
+  const closeDrawer = () => {
+    setActiveDrawer(null)
+    setSelectedProperty(null)
+    setShowArbitrary(false)
+  }
+
+  const filteredClasses = element.classes.filter((className) =>
+    className.toLowerCase().includes(classFilter.toLowerCase())
+  )
+
+  const toggleAdvancedMode = () => {
+    setIsAdvancedMode(!isAdvancedMode)
+    if (activeDrawer) {
+      setActiveDrawer(null)
+    }
+  }
+
+  const applyPreset = (preset: any) => {
+    preset.classes.forEach((className: string) => {
+      onClassAdd?.(className)
+    })
+  }
+
+  const handleCategoryGroupChange = (groupId: string) => {
+    setSelectedCategoryGroup(groupId)
+    // Auto-select first category in the group
+    const firstCategory = CATEGORY_GROUPS[groupId as keyof typeof CATEGORY_GROUPS].categories[0]
+    setSelectedCategory(firstCategory.id)
+  }
+
+  const getCurrentProperties = () => {
+    switch (selectedCategory) {
+      case "layout":
+        return LAYOUT_PROPERTIES
+      case "flex-grid":
+        return FLEX_PROPERTIES
+      case "typography":
+        return TYPOGRAPHY_PROPERTIES
+      default:
+        return LAYOUT_PROPERTIES
+    }
+  }
+
+  const getCurrentCategoryGroup = () =>
+    CATEGORY_GROUPS[selectedCategoryGroup as keyof typeof CATEGORY_GROUPS]
+  const getCurrentCategories = () => getCurrentCategoryGroup().categories
+
+  // Render the appropriate mode
+  return isAdvancedMode ? (
+    <AdvancedModeBubbleEditor
+      element={element}
+      isDragging={isDragging}
+      currentPosition={currentPosition}
+      handleMouseDown={handleMouseDown}
+      toggleAdvancedMode={toggleAdvancedMode}
+      activeDrawer={activeDrawer}
+      setActiveDrawer={setActiveDrawer}
+      filteredClasses={filteredClasses}
+      handleRemoveClass={handleRemoveClass}
+      classFilter={classFilter}
+      setClassFilter={setClassFilter}
+      selectedCategoryGroup={selectedCategoryGroup}
+      getCurrentCategoryGroup={getCurrentCategoryGroup}
+      getCurrentCategories={getCurrentCategories}
+      handleCategoryGroupChange={handleCategoryGroupChange}
+      selectedCategory={selectedCategory}
+      setSelectedCategory={setSelectedCategory}
+      getCurrentProperties={getCurrentProperties}
+      handlePropertyClick={handlePropertyClick}
+      selectedElements={selectedElements}
+      livePreview={livePreview}
+      setLivePreview={setLivePreview}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      isQuickActionsCollapsed={isQuickActionsCollapsed}
+      setIsQuickActionsCollapsed={setIsQuickActionsCollapsed}
+      applyPreset={applyPreset}
+      selectedProperty={selectedProperty}
+      showArbitrary={showArbitrary}
+      setShowArbitrary={setShowArbitrary}
+      showImportant={showImportant}
+      setShowImportant={setShowImportant}
+      isPinned={isPinned}
+      setIsPinned={setIsPinned}
+      arbitraryValue={arbitraryValue}
+      setArbitraryValue={setArbitraryValue}
+      handleArbitrarySave={handleArbitrarySave}
+      handleOptionSelect={handleOptionSelect}
+      closeDrawer={closeDrawer}
+      newClass={newClass}
+      setNewClass={setNewClass}
+      handleAddClass={handleAddClass}
+    />
+  ) : (
+    <CompactModeBubbleEditor
+      element={element}
+      isDragging={isDragging}
+      currentPosition={currentPosition}
+      handleMouseDown={handleMouseDown}
+      toggleAdvancedMode={toggleAdvancedMode}
+      activeDrawer={activeDrawer}
+      setActiveDrawer={setActiveDrawer}
+      filteredClasses={filteredClasses}
+      handleRemoveClass={handleRemoveClass}
+      selectedCategoryGroup={selectedCategoryGroup}
+      getCurrentCategoryGroup={getCurrentCategoryGroup}
+      getCurrentCategories={getCurrentCategories}
+      handleCategoryGroupChange={handleCategoryGroupChange}
+      selectedCategory={selectedCategory}
+      setSelectedCategory={setSelectedCategory}
+      getCurrentProperties={getCurrentProperties}
+      handlePropertyClick={handlePropertyClick}
+      selectedProperty={selectedProperty}
+      showArbitrary={showArbitrary}
+      setShowArbitrary={setShowArbitrary}
+      showImportant={showImportant}
+      setShowImportant={setShowImportant}
+      isPinned={isPinned}
+      setIsPinned={setIsPinned}
+      arbitraryValue={arbitraryValue}
+      setArbitraryValue={setArbitraryValue}
+      handleArbitrarySave={handleArbitrarySave}
+      handleOptionSelect={handleOptionSelect}
+      closeDrawer={closeDrawer}
+      newClass={newClass}
+      setNewClass={setNewClass}
+      handleAddClass={handleAddClass}
+    />
+  )
+}
+
 export { BubbleEditor }
