@@ -252,6 +252,38 @@
   --color-red-indicator: var(--red-indicator);
   --color-red-track: var(--red-track);
 
+  /* Tomato */
+  --color-tomato-1: var(--tomato-1);
+  --color-tomato-2: var(--tomato-2);
+  --color-tomato-3: var(--tomato-3);
+  --color-tomato-4: var(--tomato-4);
+  --color-tomato-5: var(--tomato-5);
+  --color-tomato-6: var(--tomato-6);
+  --color-tomato-7: var(--tomato-7);
+  --color-tomato-8: var(--tomato-8);
+  --color-tomato-9: var(--tomato-9);
+  --color-tomato-10: var(--tomato-10);
+  --color-tomato-11: var(--tomato-11);
+  --color-tomato-12: var(--tomato-12);
+  /* Tomato Alpha colors */
+  --color-tomato-a1: var(--tomato-a1);
+  --color-tomato-a2: var(--tomato-a2);
+  --color-tomato-a3: var(--tomato-a3);
+  --color-tomato-a4: var(--tomato-a4);
+  --color-tomato-a5: var(--tomato-a5);
+  --color-tomato-a6: var(--tomato-a6);
+  --color-tomato-a7: var(--tomato-a7);
+  --color-tomato-a8: var(--tomato-a8);
+  --color-tomato-a9: var(--tomato-a9);
+  --color-tomato-a10: var(--tomato-a10);
+  --color-tomato-a11: var(--tomato-a11);
+  --color-tomato-a12: var(--tomato-a12);
+
+  --color-tomato-contrast: var(--tomato-contrast);
+  --color-tomato-surface: var(--tomato-surface);
+  --color-tomato-indicator: var(--tomato-indicator);
+  --color-tomato-track: var(--tomato-track);
+
   /* Cyan */
   --color-cyan-1: var(--cyan-1);
   --color-cyan-2: var(--cyan-2);
@@ -283,6 +315,38 @@
   --color-cyan-surface: var(--cyan-surface);
   --color-cyan-indicator: var(--cyan-indicator);
   --color-cyan-track: var(--cyan-track);
+
+  /* Sky */
+  --color-sky-1: var(--sky-1);
+  --color-sky-2: var(--sky-2);
+  --color-sky-3: var(--sky-3);
+  --color-sky-4: var(--sky-4);
+  --color-sky-5: var(--sky-5);
+  --color-sky-6: var(--sky-6);
+  --color-sky-7: var(--sky-7);
+  --color-sky-8: var(--sky-8);
+  --color-sky-9: var(--sky-9);
+  --color-sky-10: var(--sky-10);
+  --color-sky-11: var(--sky-11);
+  --color-sky-12: var(--sky-12);
+  /* Sky Alpha colors */
+  --color-sky-a1: var(--sky-a1);
+  --color-sky-a2: var(--sky-a2);
+  --color-sky-a3: var(--sky-a3);
+  --color-sky-a4: var(--sky-a4);
+  --color-sky-a5: var(--sky-a5);
+  --color-sky-a6: var(--sky-a6);
+  --color-sky-a7: var(--sky-a7);
+  --color-sky-a8: var(--sky-a8);
+  --color-sky-a9: var(--sky-a9);
+  --color-sky-a10: var(--sky-a10);
+  --color-sky-a11: var(--sky-a11);
+  --color-sky-a12: var(--sky-a12);
+
+  --color-sky-contrast: var(--sky-contrast);
+  --color-sky-surface: var(--sky-surface);
+  --color-sky-indicator: var(--sky-indicator);
+  --color-sky-track: var(--sky-track);
 
   /* Orange */
   --color-orange-1: var(--orange-1);

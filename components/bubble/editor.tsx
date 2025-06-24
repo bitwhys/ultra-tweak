@@ -263,14 +263,14 @@ const PropertyDrawer = ({
               value={newClass}
               onChange={(e) => setNewClass(e.target.value)}
               placeholder="Enter classname"
-              className="mb-4 border-slate-600 bg-slate-700 text-slate-200 placeholder:text-slate-500"
+              className="text-foreground mb-4 border-slate-600 bg-slate-700 placeholder:text-slate-500"
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAddClass()
                 if (e.key === "Escape") closeDrawer()
               }}
               autoFocus
             />
-            <div className="mb-4 flex items-center gap-2 text-sm text-slate-400">
+            <div className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
               <Info className="h-4 w-4" />
               <span>You can separate multiple classes with space</span>
             </div>
@@ -306,7 +306,9 @@ const PropertyDrawer = ({
                 <button
                   onClick={() => setShowArbitrary(!showArbitrary)}
                   className={`rounded px-2 py-1 text-xs ${
-                    showArbitrary ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                    showArbitrary
+                      ? "text-foreground bg-slate-600"
+                      : "text-muted-foreground bg-slate-700"
                   }`}
                 >
                   [..]
@@ -314,7 +316,9 @@ const PropertyDrawer = ({
                 <button
                   onClick={() => setShowImportant(!showImportant)}
                   className={`rounded px-2 py-1 text-xs ${
-                    showImportant ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                    showImportant
+                      ? "text-foreground bg-slate-600"
+                      : "text-muted-foreground bg-slate-700"
                   }`}
                 >
                   !
@@ -322,7 +326,7 @@ const PropertyDrawer = ({
                 <button
                   onClick={() => setIsPinned(!isPinned)}
                   className={`rounded px-2 py-1 text-xs ${
-                    isPinned ? "bg-slate-600 text-slate-200" : "bg-slate-700 text-slate-400"
+                    isPinned ? "text-foreground bg-slate-600" : "text-muted-foreground bg-slate-700"
                   }`}
                 >
                   {isPinned ? "unpin" : "pin"}
@@ -338,7 +342,7 @@ const PropertyDrawer = ({
                     value={arbitraryValue}
                     onChange={(e) => setArbitraryValue(e.target.value)}
                     placeholder="Custom value"
-                    className="border-slate-600 bg-slate-700 pr-20 text-slate-200 placeholder:text-slate-500"
+                    className="text-foreground border-slate-600 bg-slate-700 pr-20 placeholder:text-slate-500"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleArbitrarySave()
                     }}
@@ -367,7 +371,7 @@ const PropertyDrawer = ({
                       onClick={() => handleOptionSelect(option)}
                       className="flex w-full items-center justify-between rounded p-3 text-left transition-colors hover:bg-slate-700"
                     >
-                      <span className="text-slate-200">{option.value || option.label}</span>
+                      <span className="text-foreground">{option.value || option.label}</span>
                       <span className="text-sm text-slate-500">{option.description}</span>
                     </button>
                   ))}
@@ -611,16 +615,16 @@ const AdvancedModeBubbleEditor = ({
       onMouseDown={handleMouseDown}
     >
       {/* Advanced Header Toolbar */}
-      <div className="drag-handle bg-gray-2 flex cursor-grab items-center justify-between border-b p-3 active:cursor-grabbing">
+      <div className="drag-handle bg-gray-2 flex cursor-grab items-center justify-between border-b p-2 active:cursor-grabbing">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-sm text-slate-400">
+          <div className="text-muted-foreground flex items-center gap-1 text-sm">
             {element.parentTag && (
               <>
                 <span className="capitalize">{element.parentTag}</span>
-                <ChevronRight className="h-3 w-3" />
+                <ChevronRight className="size-3" />
               </>
             )}
-            <span className="font-medium text-slate-200 capitalize">{element.tagName}</span>
+            <span className="text-foreground font-medium capitalize">{element.tagName}</span>
           </div>
           <Badge variant="secondary" className="text-xs">
             {selectedElements.length} selected
@@ -632,52 +636,52 @@ const AdvancedModeBubbleEditor = ({
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <Undo2 className="h-3 w-3" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <Redo2 className="h-3 w-3" />
           </Button>
-          <Separator orientation="vertical" className="h-4 bg-slate-600" />
+          <Separator orientation="vertical" className="h-4" />
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <History className="h-3 w-3" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <Download className="h-3 w-3" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <Users className="h-3 w-3" />
           </Button>
-          <Separator orientation="vertical" className="h-4 bg-slate-600" />
+          <Separator orientation="vertical" className="h-4" />
           <Button
             onClick={() => setLivePreview(!livePreview)}
             variant="ghost"
             size="sm"
-            className={`h-7 px-2 ${livePreview ? "text-green-400" : "text-slate-400"} hover:text-slate-200`}
+            className={`h-7 px-2 ${livePreview ? "text-(--sky-9)" : "text-muted-foreground"} hover:text-foreground`}
           >
             {livePreview ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
           >
             <Settings className="h-3 w-3" />
           </Button>
@@ -685,7 +689,7 @@ const AdvancedModeBubbleEditor = ({
             onClick={toggleAdvancedMode}
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-slate-400 hover:text-slate-200"
+            className="text-muted-foreground hover:text-foreground h-7 px-2"
             title="Compact Mode"
           >
             <Minimize2 className="h-3 w-3" />
@@ -701,12 +705,12 @@ const AdvancedModeBubbleEditor = ({
             className="border-b p-3"
             style={{ height: isQuickActionsCollapsed ? "calc(100% - 60px)" : "calc(100% - 140px)" }}
           >
-            <h3 className="mb-2 text-sm font-medium text-slate-200">Element Tree</h3>
+            <h3 className="text-foreground mb-2 text-sm font-medium">Element Tree</h3>
             <ScrollArea className="h-full overflow-hidden">
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2 rounded bg-slate-700 p-2">
                   <input type="checkbox" className="h-3 w-3" checked readOnly />
-                  <span className="text-slate-200">div.container</span>
+                  <span className="text-foreground">div.container</span>
                 </div>
                 <div className="ml-4 flex items-center gap-2 rounded p-2 hover:bg-slate-700">
                   <input type="checkbox" className="h-3 w-3" />
@@ -729,7 +733,7 @@ const AdvancedModeBubbleEditor = ({
           >
             <button
               onClick={() => setIsQuickActionsCollapsed(!isQuickActionsCollapsed)}
-              className="mb-2 flex w-full items-center justify-between text-xs font-medium tracking-wide text-slate-400 uppercase transition-colors hover:text-slate-300"
+              className="text-muted-foreground mb-2 flex w-full items-center justify-between text-xs font-medium tracking-wide uppercase transition-colors hover:text-slate-300"
             >
               <span>Quick Actions</span>
               <ChevronDown
@@ -768,23 +772,23 @@ const AdvancedModeBubbleEditor = ({
         </div>
 
         {/* Center Panel - Properties & Controls */}
-        <div className="flex flex-1 flex-col">
+        <div className="flex w-max flex-col">
           {/* Classes Display with Search */}
           <div className="bg-gray-1 border-b p-3">
             <div className="mb-3 flex items-center gap-2">
               <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 text-slate-500" />
+                <Search className="text-gray-10 absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2" />
                 <Input
                   value={classFilter}
                   onChange={(e) => setClassFilter(e.target.value)}
                   placeholder="Filter classes..."
-                  className="h-7 border-slate-600 bg-slate-700 pl-7 text-sm text-slate-200"
+                  className="text-foreground bg-gray-3 h-7 pl-7 text-sm"
                 />
               </div>
               <Button
                 onClick={() => setActiveDrawer("add-class")}
                 size="sm"
-                className="h-7 bg-indigo-600 hover:bg-indigo-700"
+                className="bg-accent-9 hover:bg-accent-10 h-7"
               >
                 <Plus className="mr-1 h-3 w-3" />
                 Add
@@ -796,7 +800,7 @@ const AdvancedModeBubbleEditor = ({
                 {filteredClasses.map((className, index) => (
                   <div
                     key={index}
-                    className="group relative flex items-center gap-1 rounded border border-slate-600 bg-slate-700 px-2 py-1 text-xs text-slate-200 transition-colors hover:bg-slate-600"
+                    className="group text-foreground relative flex items-center gap-1 rounded border border-slate-600 bg-slate-700 px-2 py-1 text-xs transition-colors hover:bg-slate-600"
                   >
                     <span>{className}</span>
                     <button
@@ -823,7 +827,7 @@ const AdvancedModeBubbleEditor = ({
                     className={`flex items-center gap-1 rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                       selectedCategoryGroup === groupId
                         ? "bg-indigo-600 text-white"
-                        : "text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                        : "text-muted-foreground hover:text-foreground hover:bg-slate-700"
                     }`}
                   >
                     <Icon className="h-3 w-3" />
@@ -845,7 +849,7 @@ const AdvancedModeBubbleEditor = ({
                   className={`flex items-center gap-1 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
                     selectedCategory === category.id
                       ? "border-b-2 border-indigo-500 bg-slate-700 text-slate-100"
-                      : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+                      : "text-muted-foreground hover:text-foreground hover:bg-slate-700/50"
                   }`}
                 >
                   <Icon className="h-3 w-3" />
@@ -865,10 +869,10 @@ const AdvancedModeBubbleEditor = ({
                     onClick={() => handlePropertyClick(property)}
                     className="rounded-lg border border-slate-600 bg-slate-700 p-3 text-left transition-all hover:bg-slate-600"
                   >
-                    <div className="mb-1 text-xs text-slate-400 lowercase">
+                    <div className="text-muted-foreground mb-1 text-xs lowercase">
                       {property.name.replace("-", " ")}
                     </div>
-                    <div className="text-sm font-medium text-slate-200">{property.value}</div>
+                    <div className="text-foreground text-sm font-medium">{property.value}</div>
                   </button>
                 ))}
               </div>
@@ -893,8 +897,8 @@ const AdvancedModeBubbleEditor = ({
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex flex-1 items-center justify-center gap-1 p-2 text-xs font-medium transition-colors ${
                     activeTab === tab.id
-                      ? "border-b-2 border-indigo-500 bg-slate-700 text-slate-200"
-                      : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+                      ? "text-foreground border-b-2 border-indigo-500 bg-slate-700"
+                      : "text-muted-foreground hover:text-foreground hover:bg-slate-700/50"
                   }`}
                 >
                   <Icon className="h-3 w-3" />
@@ -909,13 +913,13 @@ const AdvancedModeBubbleEditor = ({
             <div className="p-3">
               {activeTab === "history" && (
                 <div className="space-y-2">
-                  <h4 className="mb-3 text-xs font-medium tracking-wide text-slate-400 uppercase">
+                  <h4 className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
                     Recent Changes
                   </h4>
                   {MOCK_HISTORY.map((item) => (
                     <div key={item.id} className="rounded bg-slate-700 p-2 text-sm">
-                      <div className="font-medium text-slate-200">{item.action}</div>
-                      <div className="text-xs text-slate-400">{item.time}</div>
+                      <div className="text-foreground font-medium">{item.action}</div>
+                      <div className="text-muted-foreground text-xs">{item.time}</div>
                     </div>
                   ))}
                 </div>
@@ -923,13 +927,13 @@ const AdvancedModeBubbleEditor = ({
 
               {activeTab === "presets" && (
                 <div className="space-y-2">
-                  <h4 className="mb-3 text-xs font-medium tracking-wide text-slate-400 uppercase">
+                  <h4 className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
                     Saved Presets
                   </h4>
                   {MOCK_PRESETS.map((preset, index) => (
                     <div key={index} className="rounded bg-slate-700 p-3">
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="text-sm font-medium text-slate-200">{preset.name}</span>
+                        <span className="text-foreground text-sm font-medium">{preset.name}</span>
                         <Button
                           onClick={() => applyPreset(preset)}
                           size="sm"
@@ -948,7 +952,7 @@ const AdvancedModeBubbleEditor = ({
                           </span>
                         ))}
                         {preset.classes.length > 3 && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-muted-foreground text-xs">
                             +{preset.classes.length - 3} more
                           </span>
                         )}
@@ -960,37 +964,37 @@ const AdvancedModeBubbleEditor = ({
 
               {activeTab === "performance" && (
                 <div className="space-y-3">
-                  <h4 className="mb-3 text-xs font-medium tracking-wide text-slate-400 uppercase">
+                  <h4 className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
                     Bundle Impact
                   </h4>
                   <div className="rounded bg-slate-700 p-3">
-                    <div className="mb-1 text-sm font-medium text-slate-200">CSS Size</div>
-                    <div className="text-xs text-slate-400">+2.3KB from changes</div>
+                    <div className="text-foreground mb-1 text-sm font-medium">CSS Size</div>
+                    <div className="text-muted-foreground text-xs">+2.3KB from changes</div>
                   </div>
                   <div className="rounded bg-slate-700 p-3">
-                    <div className="mb-1 text-sm font-medium text-slate-200">Unused Classes</div>
-                    <div className="text-xs text-slate-400">3 classes can be removed</div>
+                    <div className="text-foreground mb-1 text-sm font-medium">Unused Classes</div>
+                    <div className="text-muted-foreground text-xs">3 classes can be removed</div>
                   </div>
                 </div>
               )}
 
               {activeTab === "properties" && (
                 <div className="space-y-3">
-                  <h4 className="mb-3 text-xs font-medium tracking-wide text-slate-400 uppercase">
+                  <h4 className="text-muted-foreground mb-3 text-xs font-medium tracking-wide uppercase">
                     Element Info
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Tag</span>
-                      <span className="text-slate-200">{element.tagName}</span>
+                      <span className="text-muted-foreground">Tag</span>
+                      <span className="text-foreground">{element.tagName}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Classes</span>
-                      <span className="text-slate-200">{element.classes.length}</span>
+                      <span className="text-muted-foreground">Classes</span>
+                      <span className="text-foreground">{element.classes.length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Parent</span>
-                      <span className="text-slate-200">{element.parentTag || "none"}</span>
+                      <span className="text-muted-foreground">Parent</span>
+                      <span className="text-foreground">{element.parentTag || "none"}</span>
                     </div>
                   </div>
                 </div>

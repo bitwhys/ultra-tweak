@@ -4,13 +4,14 @@
 @import "./colors/accent.css"; /* Purple */
 /* Helper colors */
 @import "./colors/blue.css";
-@import "./colors/green.css";
-@import "./colors/yellow.css";
-@import "./colors/red.css";
-@import "./colors/tomato.css";
 @import "./colors/cyan.css";
+@import "./colors/green.css";
 @import "./colors/orange.css";
 @import "./colors/pink.css";
+@import "./colors/red.css";
+@import "./colors/sky.css";
+@import "./colors/tomato.css";
+@import "./colors/yellow.css";
 
 /* Gray (Neutral) colors */
 :root {
