@@ -77,7 +77,7 @@ const Toolbar = ({ onClose, location = "top-right", onOpenBubbleEditor }: Toolba
   return (
     <ToolbarPrimitive.Root
       className={cn(
-        "bg-gray-1 border-gray-7 fixed z-50 flex h-11 items-center gap-1 rounded-xl border p-1.5 shadow-xl",
+        "bg-gray-1 border-gray-7 fixed z-50 flex h-11 items-center gap-1 rounded-xl border p-1.5 shadow-lg",
         getPositionClasses()
       )}
     >

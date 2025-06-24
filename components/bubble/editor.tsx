@@ -229,7 +229,7 @@ const MOCK_PRESETS = [
 
 type DrawerType = "add-class" | "edit-property" | "edit-arbitrary" | null
 
-export default function BubbleEditor({
+const BubbleEditor = ({
   element = {
     tagName: "div",
     parentTag: "div",
@@ -238,7 +238,7 @@ export default function BubbleEditor({
   onClassAdd,
   onClassRemove,
   onClose,
-}: BubbleEditorProps) {
+}: BubbleEditorProps) => {
   const [isAdvancedMode, setIsAdvancedMode] = useState(false)
   const [selectedCategoryGroup, setSelectedCategoryGroup] = useState("structure")
   const [selectedCategory, setSelectedCategory] = useState("layout")
@@ -1226,3 +1226,4 @@ export default function BubbleEditor({
     </div>
   )
 }
+export { BubbleEditor }
